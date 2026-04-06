@@ -53,3 +53,11 @@ class UserClient:
             json=payload,
             headers=headers
         )
+    async def get_system_roles(self, headers: dict, ) -> httpx.Response:
+        payload = {
+        }
+        return await self.api.post(
+            "/api/user/get_roles",
+            json=payload,
+            headers=headers
+        )

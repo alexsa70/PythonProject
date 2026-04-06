@@ -2,7 +2,7 @@ import pytest
 import allure
 
 from src.clients.user_client import UserClient
-from src.schemas.user_schema import UserResponseSchema
+from src.schemas.user_schema import UserResponseSchema, RolesResponseSchema
 from src.utils.assertions import assert_status_code
 
 
@@ -55,3 +55,23 @@ class TestUserService:
 
         assert len(parsed_users) >= 1
         assert any(user.id == admin_auth_context.user.id for user in parsed_users)
+
+    @allure.title("Users: get system roles")
+    async def test_get_system_roles(self, api_client, admin_headers, admin_auth_context):
+        users_client = UserClient(api_client)
+
+        response = await users_client.get_system_roles(
+            headers=admin_headers,
+
+        )
+        assert_status_code(response, 200)
+        #response_json = response.json()
+        parsed = RolesResponseSchema.model_validate(response.json())
+
+        role_names = [role.name for role in parsed.root]
+
+        assert "admin" in role_names
+        assert "user" in role_names
+        assert "super_admin" in role_names
+
+

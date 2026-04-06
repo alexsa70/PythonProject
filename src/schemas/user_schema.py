@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, RootModel
 from datetime import datetime
 
 class UserResponseSchema(BaseModel):
@@ -40,3 +40,20 @@ class UsersListResponseSchema(BaseModel):
     model_config = {
         "extra": "allow"
     }
+
+# =========================
+# Roles schemas
+# =========================
+
+class RoleSchema(BaseModel):
+    id: str
+    name: str
+    description: str
+
+    model_config = {
+        "extra": "allow"
+    }
+
+
+class RolesResponseSchema(RootModel[list[RoleSchema]]):
+    pass
