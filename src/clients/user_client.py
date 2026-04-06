@@ -27,3 +27,12 @@ class UserClient:
             files=files,
             headers=headers
         )
+    async def delete_user(self, headers: dict, user_id: str) -> httpx.Response:
+        payload = {
+            "user_id": user_id,
+            }
+        return await self.api.post(
+            "/api/user/delete",
+            json=payload,
+            headers=headers
+        )

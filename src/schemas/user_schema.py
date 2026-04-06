@@ -25,3 +25,10 @@ class CreateUserResponseSchema(BaseModel):
         "extra": "allow"}
 
 
+class DeleteUserResponseSchema(BaseModel):
+    message: str
+    user_status: str
+
+    model_config = {
+        "extra": "allow"
+    }

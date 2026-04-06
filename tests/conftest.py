@@ -5,6 +5,7 @@ from typing import Any
 from src.clients.api_client import ApiClient
 from src.clients.auth_client import AuthClient
 from src.config import settings
+from src.utils.debug import debug_pause
 
 
 def _build_credentials(
@@ -100,3 +101,9 @@ def user_headers(user_token) -> dict:
 @pytest.fixture
 def super_admin_headers(super_admin_token) -> dict:
     return {"Authorization": f"Bearer {super_admin_token}"}
+# Debug tools
+@pytest_asyncio.fixture
+async def ui_debug_pause():
+    async def _pause(message: str, seconds: int = 20) -> None:
+        await debug_pause(message, seconds)
+    return _pause
