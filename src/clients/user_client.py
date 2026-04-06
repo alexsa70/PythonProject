@@ -36,3 +36,12 @@ class UserClient:
             json=payload,
             headers=headers
         )
+    async def get_user_by_id(self, headers: dict, user_id: str) -> httpx.Response:
+        payload = {
+            "user_id": user_id,
+        }
+        return await self.api.post(
+            "/api/user/get_by_id",
+            json=payload,
+            headers=headers
+        )
