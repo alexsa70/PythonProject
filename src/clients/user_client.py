@@ -45,3 +45,11 @@ class UserClient:
             json=payload,
             headers=headers
         )
+    async def get_all_users(self, headers: dict, ) -> httpx.Response:
+        payload = {
+        }
+        return await self.api.post(
+            "/api/user/get_all",
+            json=payload,
+            headers=headers
+        )

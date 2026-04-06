@@ -32,3 +32,11 @@ class DeleteUserResponseSchema(BaseModel):
     model_config = {
         "extra": "allow"
     }
+
+class UsersListResponseSchema(BaseModel):
+    users: list[UserResponseSchema]
+    total_count: int
+
+    model_config = {
+        "extra": "allow"
+    }
