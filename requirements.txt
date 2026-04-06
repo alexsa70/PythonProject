@@ -1,0 +1,8 @@
+
+httpx
+pytest
+allure-python-commons
+pydantic-settings
+pytest-asyncio
+pydantic
+faker
