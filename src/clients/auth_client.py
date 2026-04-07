@@ -7,6 +7,7 @@ class AuthClient:
     def __init__(self, api: ApiClient):
         self.api = api
 
+    # Login
     async def login(
             self,
             identity: str,
@@ -22,3 +23,22 @@ class AuthClient:
         if otp_code is not None:
             payload["otp_code"] = otp_code
         return await self.api.post("/login", json=payload)
+
+    # SSO Login
+    async def sso_login(
+            self,
+            org_name: str,
+            redirect_uri: str,
+            provider: str,
+            code: str,
+            code_verifier: Optional[str] = None,
+    ) -> httpx.Response:
+        payload = {
+            "orgName": org_name,
+            "redirect_uri": redirect_uri,
+            "provider": provider,
+            "code": code,
+        }
+        if code_verifier is not None:
+            payload["code_verifier"] = code_verifier
+        return await self.api.post("/sso_login", json=payload)

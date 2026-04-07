@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr
 
-
+# =========================
+# Login / Auth success schemas
+# =========================
 class AuthUserSchema(BaseModel):
     id: str
     org_id: str
@@ -34,6 +36,23 @@ class AuthResponseSchema(BaseModel):
     expires_in: int | None = None
     user: AuthUserSchema
     org: AuthOrgSchema
+
+    model_config = {
+        "extra": "allow"
+    }
+
+# =========================
+# Common / Error schemas
+# =========================
+class MessageErrorSchema(BaseModel):
+    message: str | None = None
+    detail: str | None = None
+
+    model_config = {
+        "extra": "allow"
+    }
+class ResetPasswordResponseSchema(BaseModel):
+    message: str
 
     model_config = {
         "extra": "allow"
