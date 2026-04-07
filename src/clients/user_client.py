@@ -61,3 +61,22 @@ class UserClient:
             json=payload,
             headers=headers
         )
+    async def unlock_user(self, headers: dict, username: str) -> httpx.Response:
+        payload = {
+            "username": username,
+        }
+        return await self.api.post(
+            "/api/user/unlock_user",
+            json=payload,
+            headers=headers
+        )
+
+    async def reset_user_mfa(self, headers: dict, user_id: str) -> httpx.Response:
+        payload = {
+            "user_id": user_id,
+        }
+        return await self.api.post(
+            "/api/user/reset_user_mfa",
+            json=payload,
+            headers=headers
+        )

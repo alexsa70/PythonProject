@@ -13,8 +13,8 @@ def users_client(api_client):
 @pytest.mark.asyncio
 @pytest.mark.user_service
 @allure.feature("User Service")
-@allure.story("Get user")
-class TestUserService:
+@allure.story("Positive tests for user service")
+class TestPositiveUserService:
     @allure.title("Users: retrieve user by name")
     @allure.severity(allure.severity_level.CRITICAL)
     async def test_get_user_by_name(self, api_client,admin_headers, admin_auth_context, users_client):
