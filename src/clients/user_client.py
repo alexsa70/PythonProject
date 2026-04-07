@@ -8,6 +8,7 @@ class UserClient:
     def __init__(self, api: ApiClient) -> None:
         self.api = api
 
+    # Get User
     async def get_user(self, headers: dict, user_name: str) -> httpx.Response:
         payload = {
             "user_name": user_name,
@@ -17,6 +18,7 @@ class UserClient:
             json=payload,
             headers=headers
         )
+    # Create User
     async def create_user(self, headers: dict, payload: dict) -> httpx.Response:
         files = {
             key: (None, str(value).lower() if isinstance(value, bool) else str(value))
@@ -27,6 +29,7 @@ class UserClient:
             files=files,
             headers=headers
         )
+    # Delete User
     async def delete_user(self, headers: dict, user_id: str) -> httpx.Response:
         payload = {
             "user_id": user_id,
@@ -36,6 +39,7 @@ class UserClient:
             json=payload,
             headers=headers
         )
+    # Get User by ID
     async def get_user_by_id(self, headers: dict, user_id: str) -> httpx.Response:
         payload = {
             "user_id": user_id,
@@ -45,6 +49,7 @@ class UserClient:
             json=payload,
             headers=headers
         )
+    # Get All Users
     async def get_all_users(self, headers: dict, ) -> httpx.Response:
         payload = {
         }
@@ -53,6 +58,7 @@ class UserClient:
             json=payload,
             headers=headers
         )
+    # Get System Roles
     async def get_system_roles(self, headers: dict, ) -> httpx.Response:
         payload = {
         }
@@ -61,6 +67,7 @@ class UserClient:
             json=payload,
             headers=headers
         )
+    # Unlock User
     async def unlock_user(self, headers: dict, username: str) -> httpx.Response:
         payload = {
             "username": username,
@@ -71,6 +78,7 @@ class UserClient:
             headers=headers
         )
 
+    # Reset User MFA
     async def reset_user_mfa(self, headers: dict, user_id: str) -> httpx.Response:
         payload = {
             "user_id": user_id,
@@ -81,6 +89,7 @@ class UserClient:
             headers=headers
         )
 
+    # Update User
     async def update_user(self, headers: dict, payload: dict) -> httpx.Response:
         files = {
             key: (None, str(value).lower() if isinstance(value, bool) else str(value))
