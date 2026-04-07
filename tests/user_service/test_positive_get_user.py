@@ -2,8 +2,9 @@ import pytest
 import allure
 
 from src.clients.user_client import UserClient
-from src.schemas.user_schema import UserResponseSchema, RolesResponseSchema
+from src.schemas.user_schema import UserResponseSchema, RolesResponseSchema, UserUpdateResponseSchema
 from src.utils.assertions import assert_status_code
+from src.factories.user_factory import fake
 
 @pytest.fixture
 def users_client(api_client):
@@ -70,5 +71,68 @@ class TestPositiveUserService:
 
         role_names = [role.name for role in parsed.root]
         assert role_name in role_names
+
+    @pytest.mark.asyncio
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("User: update current admin user")
+    async def test_user_update(
+            self,
+            users_client,
+            admin_headers,
+            admin_auth_context,
+    ) -> None:
+        current_user_id = admin_auth_context.user.id
+
+
+        with allure.step("Get current user before update"):
+            before_response = await users_client.get_user_by_id(
+                headers=admin_headers,
+                user_id=current_user_id,
+            )
+            assert_status_code(before_response, 200)
+
+            before_user = UserResponseSchema.model_validate(before_response.json())
+            original_last_name = before_user.last_name
+
+        new_last_name = f"QA{fake.first_name()}"
+
+        with allure.step("Update current user last name"):
+            update_payload = {
+                "user_id": current_user_id,
+                "last_name": new_last_name,
+            }
+
+            response = await users_client.update_user(
+                headers=admin_headers,
+                payload=update_payload,
+            )
+            assert_status_code(response, 200)
+
+            body = UserUpdateResponseSchema.model_validate(response.json())
+            assert body.message == "User updated successfully"
+
+        try:
+            with allure.step("Verify user was updated"):
+                get_by_id_response = await users_client.get_user_by_id(
+                    headers=admin_headers,
+                    user_id=current_user_id,
+                )
+                assert_status_code(get_by_id_response, 200)
+
+                updated_user = UserResponseSchema.model_validate(get_by_id_response.json())
+                assert updated_user.last_name == new_last_name
+
+        finally:
+            with allure.step("Rollback user last name to original value"):
+                rollback_payload = {
+                    "user_id": current_user_id,
+                    "last_name": original_last_name,
+                }
+
+                rollback_response = await users_client.update_user(
+                    headers=admin_headers,
+                    payload=rollback_payload,
+                )
+                assert_status_code(rollback_response, 200)
 
 

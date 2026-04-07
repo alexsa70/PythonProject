@@ -1,5 +1,6 @@
 import pytest
 import pytest_asyncio
+import asyncio
 from typing import Any
 
 from src.clients.api_client import ApiClient
@@ -7,6 +8,9 @@ from src.clients.auth_client import AuthClient
 from src.config import settings
 from src.utils.debug import debug_pause
 from src.schemas.auth_schema import AuthResponseSchema
+
+_auth_context_cache: dict[str, AuthResponseSchema] = {}
+_auth_context_lock = asyncio.Lock()
 
 def _build_credentials(
         identity: str | None,
@@ -63,32 +67,75 @@ def super_admin_credentials() -> dict:
         org_name=settings.super_admin_org,
         role_name="Super admin",
     )
+async def _get_or_create_auth_context(
+    role_name: str,
+    auth_client: AuthClient,
+    credentials: dict,
+) -> AuthResponseSchema:
+    if role_name in _auth_context_cache:
+        return _auth_context_cache[role_name]
+
+    async with _auth_context_lock:
+        if role_name in _auth_context_cache:
+            return _auth_context_cache[role_name]
+
+        response = await auth_client.login(**credentials)
+        assert response.status_code == 200, (
+            f"{role_name} login failed. Status: {response.status_code}. "
+            f"Response: {response.text}"
+        )
+
+        context = AuthResponseSchema.model_validate(response.json())
+        _auth_context_cache[role_name] = context
+        return context
+
 @pytest_asyncio.fixture
 async def admin_auth_context(auth_client, admin_credentials) -> AuthResponseSchema:
-    response = await auth_client.login(**admin_credentials)
-    assert response.status_code == 200, (
-        f"Admin login failed. Status: {response.status_code}. "
-        f"Response: {response.text}"
-    )
-    return AuthResponseSchema.model_validate(response.json())
+    return await _get_or_create_auth_context("admin", auth_client, admin_credentials)
+
 
 @pytest_asyncio.fixture
 async def user_auth_context(auth_client, user_credentials) -> AuthResponseSchema:
-    response = await auth_client.login(**user_credentials)
-    assert response.status_code == 200, (
-        f"User login failed. Status: {response.status_code}. "
-        f"Response: {response.text}"
-    )
-    return AuthResponseSchema.model_validate(response.json())
+    return await _get_or_create_auth_context("user", auth_client, user_credentials)
+
 
 @pytest_asyncio.fixture
-async def super_admin_auth_context(auth_client, super_admin_credentials) -> AuthResponseSchema:
-    response = await auth_client.login(**super_admin_credentials)
-    assert response.status_code == 200, (
-        f"Super admin login failed. Status: {response.status_code}. "
-        f"Response: {response.text}"
+async def super_admin_auth_context(
+    auth_client,
+    super_admin_credentials,
+) -> AuthResponseSchema:
+    return await _get_or_create_auth_context(
+        "super_admin",
+        auth_client,
+        super_admin_credentials,
     )
-    return AuthResponseSchema.model_validate(response.json())
+
+# @pytest_asyncio.fixture
+# async def admin_auth_context(auth_client, admin_credentials) -> AuthResponseSchema:
+#     response = await auth_client.login(**admin_credentials)
+#     assert response.status_code == 200, (
+#         f"Admin login failed. Status: {response.status_code}. "
+#         f"Response: {response.text}"
+#     )
+#     return AuthResponseSchema.model_validate(response.json())
+#
+# @pytest_asyncio.fixture
+# async def user_auth_context(auth_client, user_credentials) -> AuthResponseSchema:
+#     response = await auth_client.login(**user_credentials)
+#     assert response.status_code == 200, (
+#         f"User login failed. Status: {response.status_code}. "
+#         f"Response: {response.text}"
+#     )
+#     return AuthResponseSchema.model_validate(response.json())
+#
+# @pytest_asyncio.fixture
+# async def super_admin_auth_context(auth_client, super_admin_credentials) -> AuthResponseSchema:
+#     response = await auth_client.login(**super_admin_credentials)
+#     assert response.status_code == 200, (
+#         f"Super admin login failed. Status: {response.status_code}. "
+#         f"Response: {response.text}"
+#     )
+#     return AuthResponseSchema.model_validate(response.json())
 
 @pytest.fixture
 def admin_token(admin_auth_context) -> str:

@@ -35,3 +35,10 @@ async def test_admin_can_create_regular_user(users_client, admin_headers, admin_
 
     assert parsed.message == "User created successfully"
     assert parsed.user_id
+
+    with allure.step("Cleanup created user"):
+        delete_response = await users_client.delete_user(
+            headers=admin_headers,
+            user_id= parsed.user_id,
+        )
+        assert_status_code(delete_response, 200)

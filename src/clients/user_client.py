@@ -80,3 +80,14 @@ class UserClient:
             json=payload,
             headers=headers
         )
+
+    async def update_user(self, headers: dict, payload: dict) -> httpx.Response:
+        files = {
+            key: (None, str(value).lower() if isinstance(value, bool) else str(value))
+            for key, value in payload.items()
+        }
+        return await self.api.post(
+            "/api/user/update",
+            files=files,
+            headers=headers,
+        )

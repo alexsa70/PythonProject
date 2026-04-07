@@ -57,3 +57,17 @@ class RoleSchema(BaseModel):
 
 class RolesResponseSchema(RootModel[list[RoleSchema]]):
     pass
+
+#=========================
+# User Update
+#=========================
+class UserUpdateResponseSchema(BaseModel):
+    message: str
+    id: str | None = None
+    user_name: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+
+    model_config = {
+        "extra": "allow"
+    }
